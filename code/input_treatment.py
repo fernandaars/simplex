@@ -1,4 +1,4 @@
-import linear_programming as lp
+import linear_programming
 
 
 class InputTreatment:
@@ -36,5 +36,25 @@ class InputTreatment:
             line = file_pointer.readline()
             i += 1
 
-        return lp.LinearProgramming(num_variables, num_constraints, A, b, c,
+        return linear_programming.LinearProgramming(num_variables, num_constraints, A, b, c,
                                     signals, non_negativity)
+
+    def write_file(self, filepath, lp):
+        file_pointer = open(filepath, 'w')
+        if lp. == "Inviavel":
+            file.write("Status: inviavel\n")
+            file.write("Certificado: \n")
+            file.write("\n")
+        elif solucao == "Ilimitada":
+            file.write("Status: ilimitado\n")
+            file.write("Certificado: \n")
+            file.write("\n")
+        elif solucao == "Resolvido":
+            file.write("Status: otimo\n")
+            file.write("Objetivo: " + format(obj, '.3f') + "\n")
+            file.write("Solucao: \n")
+            for item in x:
+                file.write(str(format(item, '.3f'))+" ")
+            file.write("\nCertificado: \n")
+            file.write("\n")
+        file.close()

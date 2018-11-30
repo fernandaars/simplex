@@ -9,6 +9,12 @@ class LinearProgramming:
     non_negativity = []  # Vector of Boolleans that Shows if a Variable is
     # Non-Negative
 
+    objective_value = 0  # LP Final Objective Value
+    x = []  # Soluction Vector
+    base  = []
+    certificade = []  # Certificate of LP State
+    state = ""
+
     def __init__(self, num_variables, num_constraints, A, b, c, signals,
                  non_negativity):
         self.num_variables = int(num_variables)
@@ -19,6 +25,7 @@ class LinearProgramming:
         self.c = map(float, c)
         self.signals = signals
         self.non_negativity = map(int, non_negativity)
+        self.base = [0 for i in xrange(self.num_constraints)]
 
     def _retify_negativity(self):
         i = 0

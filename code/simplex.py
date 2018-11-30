@@ -1,8 +1,8 @@
 import sys
 import numpy
 import fractions as frac
-numpy.set_printoptions(formatter={'all': lambda x: str(frac.Fraction(x)
-                                .limit_denominator())})
+numpy.set_printoptions(formatter={'all': lambda x:
+                                  str(frac.Fraction(x).limit_denominator())})
 
 
 class Simplex:
@@ -18,7 +18,6 @@ class Simplex:
         self.tableau_width = self.lp.num_constraints + self.lp.num_variables
         self.tableau_width += 1
         self.tableau_height = self.lp.num_constraints + 1
-
         self.tableau = numpy.zeros(shape=(self.tableau_height,
                                    self.tableau_width))
 
@@ -48,53 +47,59 @@ class Simplex:
         return True
 
     def _tableau_is_finished(self):
-        i = self.lp.num_constraints
-        while (i < self.tableau_width - 1):
-            if(self.tableau[0][i] < 0):
-                return False
-        return True
-
-    def _find_ypivot(self):
-        new_obj = self.tableau[self.lp.num_constraints - 1: self.tableau_width - 1:1][0]
-        neg_values = numpy.where(new_obj[:-1] < 0)
-        # Bland's Rule
-        return neg_values[0]
+        line = self.tableau[0, self.lp.num_constraints: self.tableau_width - 1]
+        i = 0
+        while(i < len(line)):
+            if(line[i] < 0):
+                return i + self.lp.num_constraints
+            i += 1
+        return -1
 
     def _pivot(self, ypivot):
         i = 1
-        min_cost = float('Inf')
-        xpivot = -1
-        for constrain in xrange(self.lp.num_constraints):
-            new_cost = self.tableau[i][ypivot] / self.tableau[i][0]
-            [self.tableau_width]
-            if(new_cost < min_cost):
-                xpivot = i
-                min_cost = new_cost
-            i += 1
+        line = self.tableau[1:,
+                            self.tableau_width - 1] / self.tableau[1:, ypivot]
+        self.print_tableau()
+        while(True):
+            if(line.min() < 0):
+                line[line.argmin()] = float('Inf')
+            else:
+                break
+        xpivot = line.argmin() + 1
         pivot_value = self.tableau[xpivot][ypivot]
+
+        self.lp.base[xpivot - 1] = ypivot - self.lp.num_constraints
+        print("PIVOT: [" + str(ypivot) + "][" + str(xpivot) + "]")
+
         self.tableau[xpivot] = self.tableau[xpivot] / pivot_value
+
+        i = 0
+        while(i < self.tableau_height):
+            if(i != xpivot):
+                line_value = self.tableau[i][ypivot]
+                self.tableau[i] += self.tableau[xpivot] * -1 * line_value
+            i += 1
         self.print_tableau()
 
-        # i = 0
-        # while(i < self.tableau_height):
-        #     j = 0
-        #     line_value = self.tableau[i][ypivot]
-        #     while (j < self.tableau_width):
-        #         coefficient = -1*line_value
+    def _write_results(self):
+        self.lp.x = [0 for i in xrange(self.lp.num_variables)]
+        self.lp.objective_value = self.tableau[0][self.tableau_width - 1]
+        self.lp.certificate = self.tableau[0][0:self.lp.num_constraints - 1]
 
+        if(self.lp.state == "otimo"):
+            i = 0
+            while(i < (len(self.lp.base))):
+                self.lp.x[self.lp.base[i]] = self.tableau[i + 1, self.tableau_width - 1]
+                i += 1
 
     def solveLP(self):
         self._create_tableau()
-        # self._retify_tableau()
-        self.print_tableau()
-        #if(self._verify_base()):
-        #    print("BASE \n")
-            # self.create_base()
-        while(not self._tableau_is_finished()):
-            print("EI")
-            y = self._find_ypivot()
-            self._pivot(y)
-            break
+        ypivot = self._tableau_is_finished()
+        while(ypivot != -1):
+            self._pivot(ypivot)
+            ypivot = self._tableau_is_finished()
+        self.lp.state = "otimo"
+        self._write_results()
 
     def print_tableau(self):
         i = 0
