@@ -1,0 +1,13 @@
+| TRABALHO PRÁTICO 1 - SIMPLEX |
+| INSTRUÇÕES |
+	
+O presente programa foi implementado em Python3.
+
+Para executar o mesmo através do terminal basta digitar: 
+| python3 Main.py IN_FILEPATH OUT_FILEPATH
+
+Sendo que 
+-> IN_FILEPATH é o caminho para o arquivo de entrada contendo os dados da PL .
+-> OUT_FILEPATH corresponde ao caminho para o arquivo no qual a saída será escrita.
+
+| Orlando Enrico Liz Silvério Silva |
