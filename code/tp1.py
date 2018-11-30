@@ -13,14 +13,14 @@
 import sys
 
 # Internal Imports
-import simplex as simplex
-import input_treatment as file
+import simplex
+import input_treatment
 
 if __name__ == '__main__':
-    file_handler = file.InputTreatment(sys.argv[1])
-    linear_prog = file_handler.read_file()
-    linear_prog.print_LP()
-    linear_prog.turn_into_FPI()
-    linear_prog.print_LP()
-    s = simplex.Simplex(linear_prog)
+    file_handler = input_treatment.InputTreatment(sys.argv[1])
+    lp = file_handler.read_file()
+    lp.print_LP()
+    lp.turn_into_FPI()
+    lp.print_LP()
+    s = simplex.Simplex(lp)
     s.solveLP()

@@ -14,9 +14,9 @@ class LinearProgramming:
         self.num_variables = int(num_variables)
         self.num_constraints = int(num_constraints)
         for line in A:
-            self.A.append(map(int, line))
-        self.b = map(int, b)
-        self.c = map(int, c)
+            self.A.append(map(float, line))
+        self.b = map(float, b)
+        self.c = map(float, c)
         self.signals = signals
         self.non_negativity = map(int, non_negativity)
 
@@ -29,7 +29,7 @@ class LinearProgramming:
                     self.A[j].append(-1 * line[i])
                     j += 1
                 self.num_variables += 1
-                self.c.append(0)
+                self.c.append(-1 * self.c[i])
                 self.non_negativity[i] = 1
             i += 1
 
@@ -77,6 +77,6 @@ class LinearProgramming:
         print("Constrains: ")
         while (i < len(self.b)):
             print(str(self.A[i]) + str(self.signals[i]) +
-                  str(self.b[i]) + "\n")
+                  str(self.b[i]))
             i += 1
         print("Non-Negative Variables: " + str(self.non_negativity))

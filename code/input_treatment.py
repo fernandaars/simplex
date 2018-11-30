@@ -9,33 +9,31 @@ class InputTreatment:
 
     def read_file(self):
         num_variables = 0
-        num_constraints = 0
+        num_constrafloats = 0
         A = []
         c = []
         b = []
         signals = []
         non_negativity = []
         try:
-            filePointer = open(self.filepath, 'r')
+            file_pointer = open(self.filepath, 'r')
         except IOError:
             print("Error: File Doesn't Exists!")
-            return num_variables, num_constraints, A, b, c, signals,
+            return num_variables, num_constrafloats, A, b, c, signals,
             non_negativity
-        num_variables = int(filePointer.readline())
-        num_constraints = int(filePointer.readline())
-        non_negativity = filePointer.readline().replace("\r\n", "").split(" ")
-        c = filePointer.readline().replace("\r\n", "").split(" ")
-        print(c)
+        num_variables = int(file_pointer.readline())
+        num_constraints = int(file_pointer.readline())
+        non_negativity = file_pointer.readline().replace("\r\n", "").split(" ")
+        c = file_pointer.readline().replace("\r\n", "").split(" ")
 
         i = 0
-        line = filePointer.readline()
+        line = file_pointer.readline()
         while(line):
-            print(line)
             line = line.split(" ")
-            b.append(int(line[len(line) - 1]))
+            b.append(float(line[len(line) - 1]))
             signals.append(line[len(line) - 2])
             A.append([line[k] for k in (range(len(line) - 2))])
-            line = filePointer.readline()
+            line = file_pointer.readline()
             i += 1
 
         return lp.LinearProgramming(num_variables, num_constraints, A, b, c,
