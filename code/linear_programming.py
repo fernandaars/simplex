@@ -1,3 +1,5 @@
+import sys
+
 
 class LinearProgramming:
     num_variables = 0   # Num of Variables in the PL
@@ -11,12 +13,12 @@ class LinearProgramming:
 
     objective_value = 0  # LP Final Objective Value
     x = []  # Soluction Vector
-    base  = []
-    certificade = []  # Certificate of LP State
-    state = ""
+    base = []
+    certificate = []  # Certificate of LP State
+    status = ""
 
     def __init__(self, num_variables, num_constraints, A, b, c, signals,
-                 non_negativity):
+                 non_negativity, verbose_mode):
         self.num_variables = int(num_variables)
         self.num_constraints = int(num_constraints)
         for line in A:
@@ -25,9 +27,11 @@ class LinearProgramming:
         self.c = map(float, c)
         self.signals = signals
         self.non_negativity = map(int, non_negativity)
-        self.base = [0 for i in xrange(self.num_constraints)]
+        self.base = [-1 for i in xrange(self.num_constraints)]
+        if(verbose_mode is not False):
+            self.print_LP()
 
-    def _retify_negativity(self):
+    def __retify_negativity(self):
         i = 0
         for variable in self.non_negativity:
             if(variable == 0):
@@ -40,7 +44,7 @@ class LinearProgramming:
                 self.non_negativity[i] = 1
             i += 1
 
-    def _retify_signals(self):
+    def __retify_signals(self):
         i = 0
         for limit in self.b:
             if(limit < 0):
@@ -55,7 +59,7 @@ class LinearProgramming:
                     self.signals[i] = ">="
             i += 1
 
-    def _add_slacks(self):
+    def __add_slacks(self):
         i = 0
         for signal in self.signals:
             if(signal == ">=" or signal == "<="):
@@ -71,10 +75,12 @@ class LinearProgramming:
                 self.signals[i] = "=="
             i += 1
 
-    def turn_into_FPI(self):
-        self._retify_negativity()
-        self._retify_signals()
-        self._add_slacks()
+    def turn_into_FPI(self, verbose_mode):
+        self.__retify_negativity()
+        self.__retify_signals()
+        self.__add_slacks()
+        if(verbose_mode is not False):
+            self.print_LP()
 
     def print_LP(self):
         print("Num of Variables: " + str(self.num_variables))
@@ -87,3 +93,13 @@ class LinearProgramming:
                   str(self.b[i]))
             i += 1
         print("Non-Negative Variables: " + str(self.non_negativity))
+        print("Status: " + str(self.status))
+        if(self.status == "otimo"):
+            print("Objetivo: " + str(self.objective_value))
+            print("Solucao:")
+            for var in self.x:
+                sys.stdout.write(str(var) + " ")
+        print("\nCertificado:")
+        for var in self.certificate:
+            sys.stdout.write(str(float(var)) + " ")
+        print("")

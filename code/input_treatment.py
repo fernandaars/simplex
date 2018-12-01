@@ -2,25 +2,17 @@ import linear_programming
 
 
 class InputTreatment:
-    filepath = ""
-
-    def __init__(self, filepath):
-        self.filepath = filepath
-
-    def read_file(self):
-        num_variables = 0
-        num_constrafloats = 0
+    def read_file(self, filepath, verbose_mode):
         A = []
         c = []
         b = []
         signals = []
         non_negativity = []
         try:
-            file_pointer = open(self.filepath, 'r')
+            file_pointer = open(filepath, 'r')
         except IOError:
             print("Error: File Doesn't Exists!")
-            return num_variables, num_constrafloats, A, b, c, signals,
-            non_negativity
+            return -1
         num_variables = int(file_pointer.readline())
         num_constraints = int(file_pointer.readline())
         non_negativity = file_pointer.readline().replace("\r\n", "").split(" ")
@@ -35,26 +27,22 @@ class InputTreatment:
             A.append([line[k] for k in (range(len(line) - 2))])
             line = file_pointer.readline()
             i += 1
+        file_pointer.close()
 
-        return linear_programming.LinearProgramming(num_variables, num_constraints, A, b, c,
-                                    signals, non_negativity)
+        return linear_programming.LinearProgramming(num_variables,
+                                                    num_constraints, A, b, c,
+                                                    signals, non_negativity,
+                                                    verbose_mode)
 
     def write_file(self, filepath, lp):
         file_pointer = open(filepath, 'w')
-        if lp. == "Inviavel":
-            file.write("Status: inviavel\n")
-            file.write("Certificado: \n")
-            file.write("\n")
-        elif solucao == "Ilimitada":
-            file.write("Status: ilimitado\n")
-            file.write("Certificado: \n")
-            file.write("\n")
-        elif solucao == "Resolvido":
-            file.write("Status: otimo\n")
-            file.write("Objetivo: " + format(obj, '.3f') + "\n")
-            file.write("Solucao: \n")
-            for item in x:
-                file.write(str(format(item, '.3f'))+" ")
-            file.write("\nCertificado: \n")
-            file.write("\n")
-        file.close()
+        file_pointer.write("Status: " + str(lp.status))
+        if(lp.status == "otimo"):
+            file_pointer.write("\nObjetivo: " + str(lp.objective_value))
+            file_pointer.write("\nSolucao:\n")
+            for var in lp.x:
+                file_pointer.write(str(var) + " ")
+        file_pointer.write("\nCertificado:\n")
+        for var in lp.certificate:
+            file_pointer.write(str(float(var)) + " ")
+        file_pointer.close()

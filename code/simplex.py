@@ -14,7 +14,7 @@ class Simplex:
     def __init__(self, lp):
         self.lp = lp
 
-    def _create_tableau(self):
+    def __create_tableau(self):
         self.tableau_width = self.lp.num_constraints + self.lp.num_variables
         self.tableau_width += 1
         self.tableau_height = self.lp.num_constraints + 1
@@ -40,26 +40,49 @@ class Simplex:
             self.tableau[i, j] = frac.Fraction(self.lp.b[i - 1])
             i += 1
 
-    def _verify_base(self):
-        for i in xrange(self.lp.num_constraints):
-            if(self.tableau[i + 1][i + self.lp.num_constraints] != 1):
-                return False
-        return True
-
-    def _tableau_is_finished(self):
-        line = self.tableau[0, self.lp.num_constraints: self.tableau_width - 1]
-        i = 0
-        while(i < len(line)):
-            if(line[i] < 0):
-                return i + self.lp.num_constraints
+    def __verify_tableau(self):
+        if(self.__verify_unboundedness() is True):
+            self.lp.status = "ilimitado"
+            return 3
+        i = 1
+        while(i < self.tableau_height):
+            ones = numpy.where(self.tableau[i, self.lp.num_constraints:
+                                            self.tableau_width - 1] == 1)
+            if(len(ones) != 0):
+                for one in ones[0]:
+                    non_zeros = numpy.where(self.tableau[:, one +
+                                            self.lp.num_constraints] != 0)
+                    if(len(non_zeros[0]) == 1):
+                        self.lp.base[i - 1] = one
+                        break
             i += 1
-        return -1
 
-    def _pivot(self, ypivot):
+        if(numpy.count_nonzero(self.lp.base == -1) == 0):
+            return 0
+
+    def __verify_unboundedness(self):
+        i = self.lp.num_constraints
+        while(i < self.tableau_width - 1):
+            row = self.tableau[:, i]
+            if(len(numpy.where(row <= 0)[0]) == self.tableau_height):
+                self.lp.status = "ilimitado"
+                return True
+            i += 1
+        return False
+
+    def __pivoting_is_finished(self):
+        line = self.tableau[0, self.lp.num_constraints: self.tableau_width - 1]
+        if(len(numpy.where(line < 0)[0]) == 0):
+            return -1
+        else:
+            return numpy.where(line < 0)[0][0] + self.lp.num_constraints
+
+    def __pivot(self, ypivot, verbose_mode):
         i = 1
         line = self.tableau[1:,
                             self.tableau_width - 1] / self.tableau[1:, ypivot]
-        self.print_tableau()
+        if(verbose_mode is not False):
+            self.print_tableau()
         while(True):
             if(line.min() < 0):
                 line[line.argmin()] = float('Inf')
@@ -69,8 +92,6 @@ class Simplex:
         pivot_value = self.tableau[xpivot][ypivot]
 
         self.lp.base[xpivot - 1] = ypivot - self.lp.num_constraints
-        print("PIVOT: [" + str(ypivot) + "][" + str(xpivot) + "]")
-
         self.tableau[xpivot] = self.tableau[xpivot] / pivot_value
 
         i = 0
@@ -79,27 +100,44 @@ class Simplex:
                 line_value = self.tableau[i][ypivot]
                 self.tableau[i] += self.tableau[xpivot] * -1 * line_value
             i += 1
-        self.print_tableau()
+        if(verbose_mode is not False):
+            self.print_tableau()
+            print("PIVOT: [" + str(ypivot) + "][" + str(xpivot) + "]")
 
-    def _write_results(self):
-        self.lp.x = [0 for i in xrange(self.lp.num_variables)]
-        self.lp.objective_value = self.tableau[0][self.tableau_width - 1]
-        self.lp.certificate = self.tableau[0][0:self.lp.num_constraints - 1]
+    def __get_results(self, verbose_mode):
+        if(self.lp.status == "ilimitado"):
+            print("")
+        else:
+            if(self.tableau[0, -1] >= 0):
+                self.lp.status = "otimo"
+                self.lp.x = [0 for i in xrange(self.lp.num_variables)]
+                self.lp.objective_value = self.tableau[0][self.tableau_width -
+                                                          1]
+                self.lp.certificate = self.tableau[0][0:self.lp
+                                                      .num_constraints]
+                i = 0
+                while(i < (len(self.lp.base))):
+                    self.lp.x[self.lp.base[i]] = self.tableau[i + 1, self
+                                                              .tableau_width -
+                                                              1]
+                    i += 1
 
-        if(self.lp.state == "otimo"):
-            i = 0
-            while(i < (len(self.lp.base))):
-                self.lp.x[self.lp.base[i]] = self.tableau[i + 1, self.tableau_width - 1]
-                i += 1
+        if(verbose_mode is not False):
+            self.lp.print_LP()
 
-    def solveLP(self):
-        self._create_tableau()
-        ypivot = self._tableau_is_finished()
-        while(ypivot != -1):
-            self._pivot(ypivot)
-            ypivot = self._tableau_is_finished()
-        self.lp.state = "otimo"
-        self._write_results()
+    def solve_LP(self, verbose_mode):
+        self.__create_tableau()
+        tableau_state = self.__verify_tableau()
+        while(tableau_state is not True):
+            ypivot = self.__pivoting_is_finished()
+            while(ypivot != -1):
+                self.__pivot(ypivot, verbose_mode)
+                ypivot = self.__pivoting_is_finished()
+                tableau_state = self.__verify_unboundedness()
+                if(tableau_state is True):
+                    break
+            tableau_state = True
+        self.__get_results(verbose_mode)
 
     def print_tableau(self):
         i = 0

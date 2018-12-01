@@ -17,10 +17,15 @@ import simplex
 import input_treatment
 
 if __name__ == '__main__':
-    file_handler = input_treatment.InputTreatment(sys.argv[1])
-    lp = file_handler.read_file()
-    lp.print_LP()
-    lp.turn_into_FPI()
-    lp.print_LP()
+    file = input_treatment.InputTreatment()
+
+    verbose_mode = False
+    if(len(sys.argv) == 4):
+        if(sys.argv[3] == "--verbose"):
+            verbose_mode = True
+
+    lp = file.read_file(sys.argv[1], verbose_mode)
+    lp.turn_into_FPI(verbose_mode)
     s = simplex.Simplex(lp)
-    s.solveLP()
+    s.solve_LP(verbose_mode)
+    file.write_file(sys.argv[2], lp)
