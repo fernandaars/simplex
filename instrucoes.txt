@@ -1,0 +1,21 @@
+.................: TRABALHO PRATICO 1 DE PESQUISA OPERACIONAL :.................
+.....................: Fernanda AParecida Rodrigues Silva :.....................
+
+Este trabalho foi implementado em Python 2.7.13, utilizando a versão compatível
+da biblioteca numpy.
+
+O código produzido é executável, a partir do diretório base, através de:
+
+python code/tp1.py INPUT_FILE OUTPUT_FILE
+
+Exemplo: python code/tp1.py tests/1.txt outputs/s1.txt
+
+Onde,
+	INPUT_FILE: arquivo de entrada
+	OUTPUT_FILE: arquivo de saída
+
+Para ver todas as partes da execução do Algoritmo Simplex, utilize:
+
+python code/tp1.py INPUT_FILE OUTPUT_FILE --verbose
+
+Exemplo: python code/tp1.py tests/exercicio7.txt outputs/sexercicio7.txt --verbose

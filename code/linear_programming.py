@@ -15,7 +15,7 @@ class LinearProgramming:
     x = []  # Soluction Vector
     base = []
     certificate = []  # Certificate of LP State
-    status = ""
+    status = "not_calculated"
 
     def __init__(self, num_variables, num_constraints, A, b, c, signals,
                  non_negativity, verbose_mode):
@@ -92,14 +92,17 @@ class LinearProgramming:
             print(str(self.A[i]) + str(self.signals[i]) +
                   str(self.b[i]))
             i += 1
-        print("Non-Negative Variables: " + str(self.non_negativity))
-        print("Status: " + str(self.status))
-        if(self.status == "otimo"):
-            print("Objetivo: " + str(self.objective_value))
-            print("Solucao:")
-            for var in self.x:
-                sys.stdout.write(str(var) + " ")
-        print("\nCertificado:")
-        for var in self.certificate:
-            sys.stdout.write(str(float(var)) + " ")
-        print("")
+
+        if(self.status != "not_calculated"):
+            print("Non-Negative Variables: " + str(self.non_negativity))
+            print("Status: " + str(self.status))
+            if(self.status == "otimo"):
+                print("Objetivo: " + str(self.objective_value))
+                print("Solucao:")
+                for var in self.x:
+                    sys.stdout.write(str(var) + " ")
+                print("")
+            print("Certificado:")
+            for var in self.certificate:
+                sys.stdout.write(str(float(var)) + " ")
+            print("")
